@@ -41,14 +41,10 @@ impl Archive for TarBz2 {
 #[cfg(test)]
 mod tests {
 
-    use crate::archives::{
-        archive::{self, Archive},
-        tarbz2::TarBz2,
-        test_util::TestUtil,
-    };
+    use crate::archives::{archive::Archive, tarbz2::TarBz2, test_util::TestUtil};
 
     #[test]
-    fn from_filename() {
+    fn test_from_filename() {
         let archive = TarBz2::new();
         assert_eq!(archive.from_filename("/tmp/hoge.tar.bz2"), true);
         assert_eq!(archive.from_filename("/tmp/hoge.tar.gz"), false);
@@ -56,12 +52,17 @@ mod tests {
         assert_eq!(archive.from_filename("/tmp/hogetar..bz2"), false);
     }
 
-    #[test]
-    fn from_file_cmd() {
+    fn from_file_cmd(path: &str) -> bool {
         let archive = TarBz2::new();
-        let file_path = TestUtil::resource_path("test_dir.tar.bz2");
+        let file_path = TestUtil::resource_path(path);
         let result = TestUtil::file_cmd_result(&file_path);
-        println!("result?: {}", result);
-        assert_eq!(archive.from_file_cmd(&result), true);
+        archive.from_file_cmd(&result)
+    }
+
+    #[test]
+    fn test_from_file_cmd() {
+        assert_eq!(from_file_cmd("test_dir.tar.bz2"), true);
+        assert_eq!(from_file_cmd("test_dir.tar.gz"), false);
+        assert_eq!(from_file_cmd("test_dir.bz2"), false);
     }
 }
