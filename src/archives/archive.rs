@@ -2,15 +2,25 @@ use tokio::process::Command;
 
 use crate::{archives::tarbz2::TarBz2, ra_error::RaError};
 
-pub struct Src<'a> {
+pub struct LsParam<'a> {
     pub src_path: &'a str,
+}
+
+pub struct PackParam<'a> {
+    pub src_path: &'a str,
+    pub dst_path: Option<&'a str>,
+}
+pub struct UnPackParam<'a> {
+    pub src_path: &'a str,
+    pub dst_path: Option<&'a str>,
 }
 
 pub trait Archive {
     fn from_filename(&self, filename: &str) -> bool;
     fn from_file_cmd(&self, stdout: &str) -> bool;
-    fn ls(&self, src: &Src) -> Command;
-    fn pack(&self, src: Src) -> Command;
+    fn ls(&self, src: &LsParam) -> Command;
+    fn pack(&self, src: &PackParam) -> Command;
+    fn unpack(&self, src: &UnPackParam) -> Command;
 }
 
 pub fn archive_list() -> Vec<Box<dyn Archive>> {
