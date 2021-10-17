@@ -30,8 +30,10 @@ impl Archive for TarBz2 {
         self.file_cmd_regex.is_match(stdout)
     }
 
-    fn ls(&self, src: Src) -> Command {
-        todo!()
+    fn ls(&self, src: &Src) -> Command {
+        let mut cmd = Command::new("tar");
+        cmd.arg("-tvf").arg(src.src_path);
+        cmd
     }
     fn pack(&self, src: Src) -> Command {
         todo!()
