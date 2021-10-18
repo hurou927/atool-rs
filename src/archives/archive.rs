@@ -1,3 +1,6 @@
+use std::error::Error;
+
+use tempfile::tempdir;
 use tokio::process::Command;
 
 use crate::{archives::tarbz2::TarBz2, ra_error::RaError};
@@ -8,11 +11,11 @@ pub struct LsParam<'a> {
 
 pub struct PackParam<'a> {
     pub src_path: &'a str,
-    pub dst_path: Option<&'a str>,
+    pub dst_path: &'a str,
 }
 pub struct UnPackParam<'a> {
     pub src_path: &'a str,
-    pub dst_path: Option<&'a str>,
+    pub dst_path: &'a str,
 }
 
 pub trait Archive {
@@ -55,4 +58,10 @@ pub async fn get_archive<'a>(
                 path: file_path.to_string(),
             }),
     }
+}
+
+pub async fn pack(command: &Command, archive: &Box<dyn Archive>) -> Result<(), Box<dyn Error>> {
+    let t = tempdir()?;
+    println!("tmpdir: {}", t.path().to_str().unwrap());
+    Ok(())
 }

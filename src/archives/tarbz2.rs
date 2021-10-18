@@ -36,10 +36,20 @@ impl Archive for TarBz2 {
         cmd
     }
     fn pack(&self, param: &PackParam) -> Command {
-        todo!()
+        let mut cmd = Command::new("tar");
+        cmd.arg("-xvf")
+            .arg(param.src_path)
+            .arg("-C")
+            .arg(param.dst_path);
+        cmd
     }
     fn unpack(&self, param: &UnPackParam) -> Command {
-        todo!()
+        let mut cmd = Command::new("tar");
+        cmd.arg("-xvf")
+            .arg(param.src_path)
+            .arg("-C")
+            .arg(param.dst_path);
+        cmd
     }
 }
 
