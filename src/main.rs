@@ -7,18 +7,14 @@ use crate::{
     archives::archive::{archive_list, get_archive, LsParam},
     helpers::Helpers,
 };
-use archives::archive::{pack, PackParam};
+use archives::archive::PackParam;
 use fs_extra::{
     dir::{move_dir, CopyOptions},
     move_items,
 };
 use glob::glob;
 use option::{parse, SubCommand};
-use std::{
-    error::Error,
-    path::{Path, PathBuf},
-};
-use tempfile::tempdir;
+use std::{error::Error, path::PathBuf};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -36,7 +32,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             println!("{}", Helpers::to_string(&output.stdout)?);
         }
 
-        SubCommand::Pack(input) => {
+        SubCommand::Pack(_input) => {
             todo!()
         }
         SubCommand::Unpack(input) => {
