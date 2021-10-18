@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::Clap;
 
 /// A basic example
@@ -15,7 +17,7 @@ pub struct Opt {
 pub enum SubCommand {
     Ls(Ls),
     Pack(Pack),
-    Unpack(Pack),
+    Unpack(Unpack),
 }
 
 #[derive(Clap, Debug, Clone)]
@@ -35,6 +37,13 @@ pub struct Pack {
 #[derive(Clap, Debug, Clone)]
 pub struct Unpack {
     pub source: String,
+    #[clap(
+        short = 'X',
+        long = "extract",
+        parse(from_os_str),
+        default_value = "./"
+    )]
+    pub dest: PathBuf,
 }
 
 pub fn parse() -> Opt {
