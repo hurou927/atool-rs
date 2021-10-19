@@ -12,6 +12,8 @@ use clap::Clap;
 pub struct Opt {
     #[clap(subcommand)]
     pub subcmd: SubCommand,
+    #[clap(short = 'l', long = "loglevel", default_value = "info")]
+    pub log_level: String,
 }
 #[derive(Clap, Debug, Clone)]
 pub enum SubCommand {
@@ -47,5 +49,11 @@ pub struct Unpack {
 }
 
 pub fn parse() -> Opt {
-    Opt::parse()
+    let opt = Opt::parse();
+    match opt.log_level.as_ref() {
+        "trace" => log::set_max_level(log::LevelFilter::Trace),
+        "debug" => log::set_max_level(log::LevelFilter::Debug),
+        _ => log::set_max_level(log::LevelFilter::Warn),
+    };
+    opt
 }

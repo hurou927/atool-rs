@@ -29,14 +29,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 src_path: &input.source,
             };
             let output = a.ls(&src).output().await?;
-            println!("{}", Helpers::to_string(&output.stdout)?);
+            log::debug!("{}", Helpers::to_string(&output.stdout)?);
         }
 
         SubCommand::Pack(_input) => {
             todo!()
         }
         SubCommand::Unpack(input) => {
-            println!("opt {:?}", input);
+            log::debug!("opt {:?}", input);
             let tmp_dir = tempfile::Builder::new().prefix("rapack-").tempdir()?;
             let tmp_dir_path = tmp_dir.path();
             let tmp_dir_str = tmp_dir_path.to_str().unwrap();
@@ -61,18 +61,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
             });
 
             if can_copy {
-                println!("Copy to {:?}", input.dest);
+                log::debug!("Copy to {:?}", input.dest);
                 move_items(&files, input.dest, &options)?;
             } else {
-                println!(
+                log::debug!(
                     "Files already exist. Copy from {:?} to {:?}",
-                    tmp_dir_path, input.dest
+                    tmp_dir_path,
+                    input.dest
                 );
                 move_dir(&tmp_dir, input.dest, &options)?;
             }
 
-            println!("output: {}", tmp_dir_str);
-            println!("{}", Helpers::to_string(&output.stdout)?);
+            log::info!("output: {}", tmp_dir_str);
+            log::info!("{}", Helpers::to_string(&output.stdout)?);
         }
     };
 
