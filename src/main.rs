@@ -6,6 +6,7 @@ mod ra_error;
 use crate::{
     archives::archive::{archive_list, get_archive, LsParam},
     helpers::Helpers,
+    ra_error::RaError,
 };
 use archives::archive::PackParam;
 use fs_extra::{
@@ -14,7 +15,10 @@ use fs_extra::{
 };
 use glob::glob;
 use option::{parse, SubCommand};
-use std::{error::Error, path::PathBuf};
+use std::{
+    error::Error,
+    path::{Path, PathBuf, StripPrefixError},
+};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -39,27 +43,29 @@ async fn main() -> Result<(), Box<dyn Error>> {
             log::debug!("opt {:?}", input);
             let tmp_dir = tempfile::Builder::new().prefix("rapack-").tempdir()?;
             let tmp_dir_path = tmp_dir.path();
-            let tmp_dir_str = tmp_dir_path.to_str().unwrap();
+            let tmp_dir_str = tmp_dir_path.to_str().ok_or(RaError::OtherPathError {
+                reason: format!("temporary dir resolve error. {:?}", tmp_dir_path),
+            })?;
             let archive = get_archive(&input.source, &archives).await?;
             let src = PackParam {
                 src_path: &input.source,
                 dst_path: tmp_dir_str,
             };
             let output = archive.pack(&src).output().await?;
+
+            let glob_pattern = format!("{}/*", tmp_dir_str);
+            let files: Vec<PathBuf> = glob(&glob_pattern)?.filter_map(Result::ok).collect();
+
+            let relative_paths_from_tmp = files
+                .iter()
+                .map(|x| x.strip_prefix(tmp_dir_path))
+                .collect::<Result<Vec<&Path>, StripPrefixError>>()?;
+
+            let can_copy = relative_paths_from_tmp
+                .iter()
+                .all(|x| !input.dest.join(x).exists());
+
             let options = CopyOptions::new();
-
-            let pattern = format!("{}/*", tmp_dir_str);
-
-            let files: Vec<PathBuf> = glob(&pattern).unwrap().filter_map(Result::ok).collect();
-
-            let can_copy = files.iter().all(|x| {
-                let relative_path_from_tmp = x.strip_prefix(tmp_dir_path).unwrap();
-                !input
-                    .dest
-                    .join(relative_path_from_tmp) //
-                    .exists()
-            });
-
             if can_copy {
                 log::debug!("Copy to {:?}", input.dest);
                 move_items(&files, input.dest, &options)?;

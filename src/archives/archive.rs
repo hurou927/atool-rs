@@ -15,7 +15,26 @@ pub struct UnPackParam<'a> {
     pub dst_path: &'a str,
 }
 
+pub enum ArchiveType {
+    TarBz2,
+}
+
+impl ArchiveType {
+    pub fn to_string(&self) -> &str {
+        match self {
+            &ArchiveType::TarBz2 => "tar+bz2",
+        }
+    }
+    pub fn from_string(&self, src: &str) -> Option<ArchiveType> {
+        match src {
+            "tar+bz2" => Some(ArchiveType::TarBz2),
+            _ => None,
+        }
+    }
+}
+
 pub trait Archive {
+    fn get_type(&self) -> ArchiveType;
     fn from_filename(&self, filename: &str) -> bool;
     fn from_file_cmd(&self, stdout: &str) -> bool;
     fn ls(&self, src: &LsParam) -> Command;

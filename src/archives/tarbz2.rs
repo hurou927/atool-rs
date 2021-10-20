@@ -22,6 +22,9 @@ impl TarBz2 {
 }
 
 impl Archive for TarBz2 {
+    fn get_type(&self) -> super::archive::ArchiveType {
+        super::archive::ArchiveType::TarBz2
+    }
     fn from_filename(&self, filename: &str) -> bool {
         self.filename_regex.is_match(filename)
     }

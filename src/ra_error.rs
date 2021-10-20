@@ -3,6 +3,7 @@ use std::{error::Error, fmt};
 #[derive(Debug)]
 pub enum RaError {
     UnSupportedFormat { path: String },
+    OtherPathError { reason: String },
 }
 
 impl fmt::Display for RaError {
@@ -10,6 +11,7 @@ impl fmt::Display for RaError {
         use self::RaError::*;
         match self {
             UnSupportedFormat { path } => write!(f, "UnSupportedFormat: {}", path),
+            OtherPathError { reason } => write!(f, "OtherPathError: {}", reason),
         }
     }
 }
