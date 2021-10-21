@@ -1,4 +1,5 @@
 
+
 test:
 	cargo test
 
@@ -10,3 +11,7 @@ unpack:
 
 pack:
 	RATOOL_LOG=DEBUG cargo run pack ./tmp/test_unpack.tar.bz2 ./Makefile Cargo.toml
+
+
+clean:
+	rm -rf rapack*

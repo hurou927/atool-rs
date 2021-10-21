@@ -1,7 +1,10 @@
 use regex::Regex;
 use tokio::process::Command;
 
-use super::archive::{Archive, LsParam, PackParam, UnPackParam};
+use super::{
+    archive::{Archive, LsParam, PackParam, UnPackParam},
+    tar_util::{self, Tar},
+};
 
 pub struct TarBz2 {
     filename_regex: Regex,
@@ -34,22 +37,13 @@ impl Archive for TarBz2 {
     }
 
     fn ls(&self, param: &LsParam) -> Command {
-        let mut cmd = Command::new("tar");
-        cmd.arg("-tvf").arg(param.src_path);
-        cmd
+        tar_util::list(&param.src_path)
     }
     fn pack(&self, param: &PackParam) -> Command {
-        let mut cmd = Command::new("tar");
-        cmd.arg("-acvf").arg(param.dst_path).args(&param.src_paths);
-        cmd
+        tar_util::compress(&param.src_paths, param.dst_path, Tar::Bz2)
     }
     fn unpack(&self, param: &UnPackParam) -> Command {
-        let mut cmd = Command::new("tar");
-        cmd.arg("-xvf")
-            .arg(param.src_path)
-            .arg("-C")
-            .arg(param.dst_path);
-        cmd
+        tar_util::uncompress(param.src_path, param.dst_path)
     }
 }
 
