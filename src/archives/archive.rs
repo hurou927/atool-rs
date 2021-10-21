@@ -7,7 +7,7 @@ pub struct LsParam<'a> {
 }
 
 pub struct PackParam<'a> {
-    pub src_path: &'a str,
+    pub src_paths: Vec<&'a str>,
     pub dst_path: &'a str,
 }
 pub struct UnPackParam<'a> {

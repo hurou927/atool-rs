@@ -4,7 +4,7 @@ mod option;
 mod ra_error;
 
 use crate::{
-    archives::archive::{archive_list, get_archive, LsParam},
+    archives::archive::{archive_list, get_archive, LsParam, UnPackParam},
     helpers::Helpers,
     ra_error::RaError,
 };
@@ -23,6 +23,7 @@ use std::{
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let opt = parse();
+    log::debug!("{:?}", opt);
 
     let archives = archive_list();
 
@@ -33,25 +34,36 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 src_path: &input.source,
             };
             let output = a.ls(&src).output().await?;
-            log::debug!("{}", Helpers::to_string(&output.stdout)?);
+            log::info!("{}", Helpers::to_string(&output.stdout)?);
         }
 
-        SubCommand::Pack(_input) => {
-            todo!()
+        SubCommand::Pack(input) => {
+            let mut srcs: Vec<&str> = Vec::new();
+            let mut additional_srcs: Vec<&str> =
+                input.additional_srcs.iter().map(|x| x.as_ref()).collect();
+            srcs.push(&input.source);
+            srcs.append(&mut additional_srcs);
+            let param = PackParam {
+                src_paths: srcs,
+                dst_path: &input.dest,
+            };
+            let archive = get_archive(&input.dest, &archives).await?;
+            let output = archive.pack(&param).output().await?;
+            log::info!("{}", Helpers::to_string(&output.stdout)?);
         }
         SubCommand::Unpack(input) => {
-            log::debug!("opt {:?}", input);
             let tmp_dir = tempfile::Builder::new().prefix("rapack-").tempdir()?;
             let tmp_dir_path = tmp_dir.path();
             let tmp_dir_str = tmp_dir_path.to_str().ok_or(RaError::OtherPathError {
                 reason: format!("temporary dir resolve error. {:?}", tmp_dir_path),
             })?;
             let archive = get_archive(&input.source, &archives).await?;
-            let src = PackParam {
+            let src = UnPackParam {
                 src_path: &input.source,
                 dst_path: tmp_dir_str,
             };
-            let output = archive.pack(&src).output().await?;
+            let output = archive.unpack(&src).output().await?;
+            log::info!("{}", Helpers::to_string(&output.stdout)?);
 
             let glob_pattern = format!("{}/*", tmp_dir_str);
             let files: Vec<PathBuf> = glob(&glob_pattern)?.filter_map(Result::ok).collect();
@@ -67,19 +79,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             let options = CopyOptions::new();
             if can_copy {
-                log::debug!("Copy to {:?}", input.dest);
+                log::info!("Extract to {:?}", input.dest);
                 move_items(&files, input.dest, &options)?;
             } else {
-                log::debug!(
-                    "Files already exist. Copy from {:?} to {:?}",
-                    tmp_dir_path,
-                    input.dest
+                log::info!(
+                    "Files already exist. Extract to {:?}",
+                    input.dest.join(tmp_dir_path.file_name().unwrap())
                 );
                 move_dir(&tmp_dir, input.dest, &options)?;
             }
-
-            log::info!("output: {}", tmp_dir_str);
-            log::info!("{}", Helpers::to_string(&output.stdout)?);
         }
     };
 

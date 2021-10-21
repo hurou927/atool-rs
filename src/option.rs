@@ -1,6 +1,8 @@
-use std::path::PathBuf;
-
 use clap::Clap;
+use env_logger::Builder;
+use env_logger::Env;
+use std::io::Write;
+use std::path::PathBuf;
 
 /// A basic example
 #[derive(Clap, Debug, Clone)]
@@ -12,7 +14,7 @@ use clap::Clap;
 pub struct Opt {
     #[clap(subcommand)]
     pub subcmd: SubCommand,
-    #[clap(short = 'l', long = "loglevel", default_value = "info")]
+    #[clap(short = 'l', long = "loglevel", default_value = "warn")]
     pub log_level: String,
 }
 #[derive(Clap, Debug, Clone)]
@@ -33,7 +35,9 @@ pub struct Ls {
 
 #[derive(Clap, Debug, Clone)]
 pub struct Pack {
+    pub dest: String,
     pub source: String,
+    pub additional_srcs: Vec<String>,
 }
 
 #[derive(Clap, Debug, Clone)]
@@ -47,13 +51,26 @@ pub struct Unpack {
     )]
     pub dest: PathBuf,
 }
+pub fn init_logger() {
+    let env = Env::default()
+        .filter("RATOOL_LOG")
+        .write_style("RATOOL_LOG");
+    let mut builder = Builder::from_env(env);
+
+    builder
+        .format(|buf, record| writeln!(buf, "{}", record.args()))
+        // .format(|buf, record| writeln!(buf, "{} - {}", record.level(), record.args()))
+        // .filter(None, LevelFilter::Info)
+        .init();
+}
 
 pub fn parse() -> Opt {
     let opt = Opt::parse();
-    match opt.log_level.as_ref() {
-        "trace" => log::set_max_level(log::LevelFilter::Trace),
-        "debug" => log::set_max_level(log::LevelFilter::Debug),
-        _ => log::set_max_level(log::LevelFilter::Warn),
-    };
+    init_logger();
+    // log::trace!("some trace log");
+    // log::debug!("some debug log");
+    // log::info!("some information log");
+    // log::warn!("some warning log");
+    // log::error!("some error log");
     opt
 }
