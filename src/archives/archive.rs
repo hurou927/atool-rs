@@ -15,19 +15,32 @@ pub struct UnPackParam<'a> {
     pub dst_path: &'a str,
 }
 
+#[derive(Clone, Copy, Debug)]
 pub enum ArchiveType {
     TarBz2,
+    TarGz,
+    TarXz,
+    TarLzma,
+    TarLzop,
 }
 
 impl ArchiveType {
     pub fn to_string(&self) -> &str {
         match self {
             &ArchiveType::TarBz2 => "tar+bz2",
+            &ArchiveType::TarGz => "tar+gz",
+            &ArchiveType::TarXz => "tar+xz",
+            &ArchiveType::TarLzop => "tar+lzop",
+            &ArchiveType::TarLzma => "tar+lzma",
         }
     }
     pub fn from_string(&self, src: &str) -> Option<ArchiveType> {
         match src {
             "tar+bz2" => Some(ArchiveType::TarBz2),
+            "tar+gz" => Some(ArchiveType::TarGz),
+            "tar+xz" => Some(ArchiveType::TarXz),
+            "tar+lzop" => Some(ArchiveType::TarLzop),
+            "tar+lzma" => Some(ArchiveType::TarLzma),
             _ => None,
         }
     }
