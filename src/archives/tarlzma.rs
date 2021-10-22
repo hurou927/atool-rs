@@ -14,7 +14,7 @@ pub struct TarLzma {
 
 impl TarLzma {
     pub fn new() -> Self {
-        let r_filename = r"^.*\.tar\.lzma";
+        let r_filename = r"^.*\.tar\.lzma$";
 
         let r_file_cmd = r#"^.*tar archive.*XZ compressed data.*"#;
 
