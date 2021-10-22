@@ -1,6 +1,9 @@
 use tokio::process::Command;
 
-use crate::{archives::tarbz2::TarBz2, ra_error::RaError};
+use crate::{
+    archives::{tarbz2::TarBz2, targz::TarGz, tarlzma::TarLzma, tarxz::TarXz},
+    ra_error::RaError,
+};
 
 pub struct LsParam<'a> {
     pub src_path: &'a str,
@@ -56,7 +59,12 @@ pub trait Archive {
 }
 
 pub fn archive_list() -> Vec<Box<dyn Archive>> {
-    vec![Box::new(TarBz2::new())]
+    vec![
+        Box::new(TarBz2::new()),
+        Box::new(TarGz::new()),
+        Box::new(TarXz::new()),
+        Box::new(TarLzma::new()),
+    ]
 }
 
 async fn detect_by_file_cmd<'a>(
