@@ -38,6 +38,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
 
         SubCommand::Pack(input) => {
+            let dest_path = Path::new(&input.dest);
+            if dest_path.exists() {
+                Err(RaError::DestinationAlreadyExists {
+                    path: input.dest.clone(),
+                })?
+            }
+
             let mut srcs: Vec<&str> = Vec::new();
             let mut additional_srcs: Vec<&str> =
                 input.additional_srcs.iter().map(|x| x.as_ref()).collect();
