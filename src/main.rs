@@ -22,6 +22,10 @@ use std::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    run().await
+}
+
+async fn run() -> Result<(), Box<dyn Error>> {
     let opt = parse();
     log::debug!("{:?}", opt);
 
