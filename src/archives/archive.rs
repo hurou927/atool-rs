@@ -1,7 +1,7 @@
 use tokio::process::Command;
 
 use crate::{
-    archives::{tarbz2::TarBz2, targz::TarGz, tarlzma::TarLzma, tarxz::TarXz},
+    archives::{tarbz2::TarBz2, targz::TarGz, tarlzma::TarLzma, tarlzop::TarLzop, tarxz::TarXz},
     ra_error::RaError,
 };
 
@@ -64,6 +64,7 @@ pub fn archive_list() -> Vec<Box<dyn Archive>> {
         Box::new(TarGz::new()),
         Box::new(TarXz::new()),
         Box::new(TarLzma::new()),
+        Box::new(TarLzop::new()),
     ]
 }
 

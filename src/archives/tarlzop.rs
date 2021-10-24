@@ -14,7 +14,7 @@ pub struct TarLzop {
 
 impl TarLzop {
     pub fn new() -> Self {
-        let r_filename = r"^.*\.tar\.lzo$";
+        let r_filename = r"^.*\.tar\.lzo";
 
         let r_file_cmd = r#"lzop compressed data.*"#;
 
@@ -46,7 +46,7 @@ impl Archive for TarLzop {
         tar_util::list(&param.src_path)
     }
     fn pack(&self, param: &PackParam) -> Command {
-        tar_util::compress(&param.src_paths, param.dst_path, Tar::Gz)
+        tar_util::compress(&param.src_paths, param.dst_path, Tar::Lzop)
     }
     fn unpack(&self, param: &UnPackParam) -> Command {
         tar_util::uncompress(param.src_path, param.dst_path)

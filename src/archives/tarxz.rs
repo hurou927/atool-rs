@@ -42,7 +42,7 @@ impl Archive for TarXz {
         tar_util::list(&param.src_path)
     }
     fn pack(&self, param: &PackParam) -> Command {
-        tar_util::compress(&param.src_paths, param.dst_path, Tar::Gz)
+        tar_util::compress(&param.src_paths, param.dst_path, Tar::Xz)
     }
     fn unpack(&self, param: &UnPackParam) -> Command {
         tar_util::uncompress(param.src_path, param.dst_path)

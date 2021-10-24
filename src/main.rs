@@ -21,8 +21,11 @@ use std::{
 };
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    run().await
+async fn main() {
+    match run().await {
+        Ok(_) => println!("Success!"),
+        Err(err) => println!("Failure {}", err),
+    };
 }
 
 async fn run() -> Result<(), Box<dyn Error>> {
